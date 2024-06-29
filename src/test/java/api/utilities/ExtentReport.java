@@ -2,6 +2,7 @@ package api.utilities;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.testng.ITestContext;
+import org.testng.ITestListener;
 import org.testng.ITestResult;
 import org.testng.annotations.Test;
 
@@ -13,19 +14,18 @@ import com.aventstack.extentreports.reporter.configuration.Theme;
 
 
 
-public class ExtentReport {
+public class ExtentReport implements ITestListener {
 	public ExtentSparkReporter sparkReporter;
 	public ExtentReports extent;
 	public ExtentTest test;
-	
 	String repName;
-	@Test
+	@Override
 	public void onStart(ITestContext testContext)
 	{		
 		String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());//time stamp
 		repName="Test-Report-"+timeStamp+".html";
 				
-		sparkReporter=new ExtentSparkReporter(".\\reports\\"+repName);//specify location of the report
+		sparkReporter=new ExtentSparkReporter(System.getProperty("user.dir")+"//reports//"+repName);//specify location of the report
 		sparkReporter.config().setDocumentTitle("RestAssuredAutomationProject"); // Title of report
 		sparkReporter.config().setReportName("Pet Store Users API"); // name of the report
 		sparkReporter.config().setTheme(Theme.DARK);
@@ -41,7 +41,7 @@ public class ExtentReport {
 		extent.setSystemInfo("user","pavan");
 	}
 	
-		
+		@Override
 	public void onTestSuccess(ITestResult result)
 	{
 		test=extent.createTest(result.getName());
@@ -49,7 +49,7 @@ public class ExtentReport {
 		test.createNode(result.getName());
 		test.log(Status.PASS, "Test Passed");
 	}
-	
+		@Override
 	public void onTestFailure(ITestResult result)
 	{
 		test=extent.createTest(result.getName()); 
@@ -58,7 +58,7 @@ public class ExtentReport {
 		test.log(Status.FAIL, "Test Failed");
 		test.log(Status.FAIL, result.getThrowable().getMessage());
 	}
-	
+		@Override
 	public void onTestSkipped(ITestResult result)
 	{
 		test=extent.createTest(result.getName()); 
@@ -67,7 +67,7 @@ public class ExtentReport {
 		test.log(Status.SKIP, "Test Skipped");
 		test.log(Status.SKIP, result.getThrowable().getMessage());
 	}
-	
+		@Override
 	public void onFinish(ITestContext testContext)
 	{
 		extent.flush();
